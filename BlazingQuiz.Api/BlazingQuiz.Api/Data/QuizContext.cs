@@ -1,6 +1,7 @@
 ﻿using BlazingQuiz.Api.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics; 
 
 namespace BlazingQuiz.Api.Data
 {
@@ -19,31 +20,29 @@ namespace BlazingQuiz.Api.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
+
+            // Ignorar la advertencia de cambios en el modelo (por el hash no determinista)
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            var hasher = new PasswordHasher<User>();
             var adminUser = new User
             {
                 Id = 1,
                 Name = "admin",
-                Email = "admin@gmal.com",
+                Email = "admin@gmail.com",
                 Phone = "1234567890",
                 Role = "Admin",
                 IsAproved = true,
             };
-            adminUser.PasswordHash = HashPassword("12345678");
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, "12345678");
 
             modelBuilder.Entity<User>().HasData(adminUser);
         }
-        private static string HashPassword(string plainPassword)
-        {
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            var bytes = System.Text.Encoding.UTF8.GetBytes(plainPassword);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
-        }
-
     }
 }

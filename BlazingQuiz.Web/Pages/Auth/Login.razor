@@ -1,0 +1,78 @@
+﻿@page "/auth/login"
+
+@layout EmptyLayout
+@inject IAuthApi AuthApi
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <div class="row vh-100"> 
+        <div class="col-sm-4 mx-auto my-auto border shadow-lg">
+            <div class="mt-3">
+                <h1 class="h3"> Login | BlazingQuiz</h1>
+            </div>
+            <hr />
+            <EditForm Model="_model" OnValidSubmit="LoginAsync">
+                <DataAnnotationsValidator />
+             
+                <div class="mb-3">
+                    <label class="from-label">UserName: </label>
+                    <InputText @bind-Value="_model.Username" class="from-control"></InputText>
+                    <ValidationMessage For="() => _model.Username" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="from-label">Password: </label>
+                    <InputText type="password" @bind-Value="_model.Password" class="from-control"></InputText>
+                    <ValidationMessage For="() => _model.Password" />
+                </div>
+                @if(!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="alert alert-danger">
+                        @_errorMessage
+                    </div>
+                }
+
+                <div class="mb-3">
+                    @if (!_isBusy)
+                    {
+                        <button type="submit" class="btn btn-success">Login</button>
+                    }
+                    else
+                    {
+                        <button type="button" disabled class="btn btn-secundary">Login-in...</button>
+                    }
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+@code {
+    private LoginDto _model = new();
+    private bool _isBusy;
+    private string? _errorMessage;
+    private async Task LoginAsync()
+    {
+        _errorMessage = null;
+        _isBusy = true;
+        try
+        {
+            var authResult = await AuthApi.LoginAsync(_model);
+            if(authResult.HasError)
+            {
+                _errorMessage = authResult.errorMessage;
+                return;
+            }
+            NavigationManager.NavigateTo("/");
+            //TODO: Implement Auth State Provider and save the token in local storage
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+        
+    }
+}

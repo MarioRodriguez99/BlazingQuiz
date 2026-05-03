@@ -46,7 +46,8 @@ builder.Services.AddCors(options => {
               .AllowAnyHeader();
     });
 });
-builder.Services.AddTransient<AuthService>();
+builder.Services.AddTransient<AuthService>()
+                .AddTransient<CategoryService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var app = builder.Build();
@@ -61,7 +62,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
-app.MapAuthEndpoints();
+app.MapAuthEndpoints()
+   .MapCategoryEndpoints();
 app.Run();
 
 static void ApplyDbMigrations(IServiceProvider sp)

@@ -39,7 +39,8 @@ namespace BlazingQuiz.Api.Service
             }
 
             var token = GenerateJWT(user);
-            return new AuthResponseDto(token, default);
+            var loggedUser = new LoggedUser(user.Id,user.Name,user.Role, token);
+            return new AuthResponseDto(loggedUser, default);
 
         }
 

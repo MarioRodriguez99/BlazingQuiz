@@ -1,8 +1,8 @@
 ﻿@page "/auth/login"
-
 @layout EmptyLayout
-@inject IAuthApi AuthApi
 @inject NavigationManager NavigationManager
+@inject IAuthApi AuthApi
+@inject QuizAuthStateProvider QuizAuthStateProvider
 
 <div class="container">
     <div class="row vh-100"> 
@@ -50,6 +50,15 @@
     private LoginDto _model = new();
     private bool _isBusy;
     private string? _errorMessage;
+
+    protected override void OnInitialized()
+    {
+        if (QuizAuthStateProvider.IsInitializated)
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+        }
+    }
+
     private async Task LoginAsync()
     {
         _errorMessage = null;
@@ -62,6 +71,8 @@
                 _errorMessage = authResult.errorMessage;
                 return;
             }
+            var loggedUser = authResult.User;
+            await QuizAuthStateProvider.SetLoginAsync(loggedUser);
             NavigationManager.NavigateTo("/");
             //TODO: Implement Auth State Provider and save the token in local storage
         }

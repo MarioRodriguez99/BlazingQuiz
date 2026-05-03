@@ -1,7 +1,24 @@
 ﻿@page "/"
+@inject QuizAuthStateProvider QuizAuthStateProvider
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Hello, @QuizAuthStateProvider.User?.Name</h1>
+
+<AuthorizeView>
+    <Authorizing>
+        <p>Authorizing...</p>
+    </Authorizing>
+    <NotAuthorized>
+        <p>NoAuthoried...</p>
+    </NotAuthorized>
+    <Authorized>
+        <p>Authorized: @context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value</p>
+    </Authorized>
+</AuthorizeView>
 
 Welcome to your new app.
+
+@code{
+
+}
